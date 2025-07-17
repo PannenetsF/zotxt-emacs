@@ -142,6 +142,7 @@ request.el is not decoding our responses as UTF-8.  Recode text as UTF-8 and par
   (let* ((response
           (request
             (format "%s/version" zotxt-url-base)
+            :headers '(("Proxy-Connection" . "close"))
             :sync t))
          (status-code (request-response-status-code response)))
     (unless (and status-code (= 200 status-code))
@@ -241,6 +242,7 @@ For use only in a `deferred:$' chain."
         (deferred:callback-post d item)
       (request
         (format "%s/items" zotxt-url-base)
+        :headers '(("Proxy-Connection" . "close"))
         :params `(("key" . ,(plist-get item :key))
                   ("format" . ,(if (eq 'bibliography zotxt-default-format)
 				   "bibliography"
@@ -282,6 +284,7 @@ For use only in a `deferred:$' chain."
   (let ((d (deferred:new)))
     (request
       (format "%s/items" zotxt-url-base)
+      :headers '(("Content-Type" . "application/json"))
       :params '(("selected" . "selected")
                 ("format" . "key"))
       :parser #'zotxt--json-read
@@ -320,6 +323,7 @@ If SEARCH-STRING is supplied, it should be the search string."
   (let ((d (deferred:new)))
     (request
       (format "%s/search" zotxt-url-base)
+      :headers '(("Content-Type" . "application/json"))
       :params `(("q" . ,search-string)
                 ("method" . ,(cdr (assq method zotxt-quicksearch-method-params)))
                 ,@(cond ((eq :all zotxt-default-library)
@@ -367,12 +371,14 @@ method will have to be selected even if
   "Select the item identified by CITEKEY in Zotero."
   (request
     (format "%s/select" zotxt-url-base)
+    :headers '(("Content-Type" . "application/json"))
     :params `(("citekey" . ,citekey))))
 
 (defun zotxt-select-key (key)
   "Select the item identified by KEY in Zotero."
   (request
     (format "%s/select" zotxt-url-base)
+    :headers '(("Content-Type" . "application/json"))
     :params `(("key" . ,key))))
 
 (defvar zotxt-citekey-regex
@@ -438,6 +444,7 @@ For use only in a `deferred:$' chain."
         (d (deferred:new)))
     (request
       (format "%s/items" zotxt-url-base)
+      :headers '(("Content-Type" . "application/json"))
       :params `(("key" . ,(plist-get item :key))
                 ("format" . ,(substring (symbol-name format) 1)))
       :parser (if (member format zotxt--json-formats)
